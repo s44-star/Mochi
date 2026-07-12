@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Mochi</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Pinned stack -->
+<script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.23.10/babel.min.js"></script>
+
+<!-- Your keys live here -->
+<script src="./config.js"></script>
+
+<style>
+  :root{
+    --oat:#F6ECDE; --oat2:#EFE0CC; --card:#FFFDF9;
+    --ink:#241C17; --text:#4B3E33; --muted:#8B7A69;
+    --fawn:#D79A54; --fawn-d:#B97E38; --mask:#3A2C22;
+    --rose:#D06B6B; --sage:#6F9A6E; --line:#E7D8C2;
+    --shadow:0 14px 34px -18px rgba(58,44,34,.45);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(120% 90% at 50% -10%, #FBF3E7 0%, var(--oat) 55%, var(--oat2) 100%);
+    color:var(--text);
+    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100dvh;
+  }
+  .wrap{max-width:440px;margin:0 auto;padding:22px 18px 40px;min-height:100dvh;display:flex;flex-direction:column}
+  .brand-font{font-family:"Fredoka",system-ui,sans-serif}
+
+  /* header */
+  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .wordmark{display:flex;align-items:center;gap:9px;cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent}
+  .wordmark h1{font-family:"Fredoka";font-weight:600;font-size:26px;letter-spacing:-.5px;color:var(--ink);margin:0;line-height:1}
+  .pin{width:34px;height:34px;flex:none}
+  .ghost-btn{font-family:"Fredoka";font-weight:500;font-size:13px;background:none;border:1px solid var(--line);color:var(--muted);
+    padding:7px 12px;border-radius:999px;cursor:pointer}
+  .ghost-btn:active{transform:scale(.97)}
+
+  .demo-banner{font-size:12.5px;color:#8a5b1f;background:#FBEBCF;border:1px solid #F0D49A;
+    border-radius:12px;padding:9px 12px;margin:6px 0 14px;line-height:1.4}
+  .demo-banner b{color:#6f4813}
+
+  /* hero card */
+  .hero{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:24px 22px 20px;
+    box-shadow:var(--shadow);text-align:center;position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(80% 60% at 50% 120%, rgba(215,154,84,.10), transparent 70%)}
+  .mochi{width:150px;height:136px;margin:2px auto 6px;display:block}
+  .hi{font-family:"Fredoka";font-weight:600;font-size:22px;color:var(--ink);margin:2px 0 2px}
+  .sub{font-size:14px;color:var(--muted);margin:0 0 4px;line-height:1.5}
+
+  /* tail divider (signature) */
+  .tail{display:block;margin:22px auto 6px;width:60px;height:26px;opacity:.55}
+
+  /* generic card */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px 18px;box-shadow:var(--shadow)}
+  .card + .card{margin-top:14px}
+  .eyebrow{font-family:"Fredoka";font-weight:600;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--fawn-d);margin:0 0 6px}
+  .card h3{font-family:"Fredoka";font-weight:600;font-size:17px;color:var(--ink);margin:0 0 4px}
+  .card p{font-size:13.5px;color:var(--muted);margin:0;line-height:1.55}
+
+  .slot{margin-top:14px;border:1.5px dashed var(--fawn);border-radius:16px;padding:16px;text-align:center;background:#FDF6EA}
+  .slot .eyebrow{color:var(--fawn-d)}
+  .slot p{font-size:13px;color:var(--text)}
+
+  /* stat row */
+  .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .stat{background:#FBF3E7;border:1px solid var(--line);border-radius:14px;padding:12px}
+  .stat .n{font-family:"Fredoka";font-weight:600;font-size:20px;color:var(--ink)}
+  .stat .l{font-size:11.5px;color:var(--muted);margin-top:2px}
+
+  /* paywall */
+  .pw-price{display:flex;align-items:baseline;gap:8px;margin:2px 0 12px}
+  .pw-price .big{font-family:"Fredoka";font-weight:600;font-size:26px;color:var(--ink)}
+  .pw-price .or{font-size:13px;color:var(--muted)}
+  .perks{list-style:none;padding:0;margin:0 0 16px}
+  .perks li{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;color:var(--text);padding:5px 0}
+  .perks li svg{flex:none;margin-top:1px}
+
+  .pay{display:grid;gap:10px}
+  .btn{font-family:"Fredoka";font-weight:600;font-size:15px;border:none;border-radius:14px;padding:14px;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:9px;transition:transform .08s,filter .15s}
+  .btn:active{transform:scale(.985)}
+  .btn-fiat{background:linear-gradient(180deg,var(--fawn) 0%,var(--fawn-d) 100%);color:#2b1e0e;box-shadow:0 8px 18px -8px rgba(185,126,56,.7)}
+  .btn-crypto{background:var(--ink);color:#F6ECDE}
+  .btn-crypto .net{font-size:11px;opacity:.7;font-weight:400}
+  .paylabel{display:flex;align-items:center;justify-content:center;gap:8px;font-size:11.5px;color:var(--muted);margin:2px 0 2px}
+  .paylabel::before,.paylabel::after{content:"";height:1px;background:var(--line);flex:1}
+
+  .wallet{margin-top:12px;background:#FBF3E7;border:1px solid var(--line);border-radius:14px;padding:12px}
+  .wallet .k{font-size:11px;color:var(--muted);margin-bottom:5px;display:flex;justify-content:space-between}
+  .wallet .addr{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--ink);
+    word-break:break-all;line-height:1.5}
+  .copy{margin-top:9px;width:100%;font-family:"Fredoka";font-weight:500;font-size:13px;background:#fff;border:1px solid var(--line);
+    color:var(--text);padding:9px;border-radius:10px;cursor:pointer}
+  .copy:active{transform:scale(.98)}
+  .confirm{margin-top:12px;width:100%;font-family:"Fredoka";font-weight:500;font-size:13.5px;background:none;border:1px dashed var(--sage);
+    color:var(--sage);padding:11px;border-radius:12px;cursor:pointer}
+
+  .unlocked{text-align:center}
+  .unlocked .badge{display:inline-flex;align-items:center;gap:7px;background:#EAF3E9;color:var(--sage);
+    font-family:"Fredoka";font-weight:600;font-size:13px;padding:8px 14px;border-radius:999px;border:1px solid #CFE4CE}
+
+  /* auth */
+  .auth{margin-top:auto;margin-bottom:auto}
+  .field{margin-bottom:11px}
+  .field label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px 2px}
+  .field input{width:100%;font-size:15px;font-family:inherit;color:var(--ink);background:#fff;border:1px solid var(--line);
+    border-radius:13px;padding:13px 14px;outline:none;transition:border-color .15s,box-shadow .15s}
+  .field input:focus{border-color:var(--fawn);box-shadow:0 0 0 3px rgba(215,154,84,.18)}
+  .auth .btn-fiat{width:100%;margin-top:4px}
+  .err{font-size:12.5px;color:#B4483F;background:#FBEAE8;border:1px solid #F1C9C4;border-radius:11px;padding:9px 11px;margin:2px 0 11px}
+  .switch{text-align:center;font-size:13px;color:var(--muted);margin-top:14px}
+  .switch button{font-family:"Fredoka";font-weight:600;background:none;border:none;color:var(--fawn-d);cursor:pointer;font-size:13px;padding:0 2px}
+  .hint{text-align:center;font-size:11px;color:var(--muted);opacity:.75;margin-top:18px}
+
+  .foot{text-align:center;font-size:11px;color:var(--muted);opacity:.7;margin-top:22px}
+
+  @media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useRef, useEffect } = React;
+const CFG = window.APP_CONFIG || {};
+
+/* ---- Supabase (guarded so the app never white-screens) ---- */
+const CONFIGURED =
+  !!CFG.SUPABASE_URL && !CFG.SUPABASE_URL.includes("YOUR-PROJECT") &&
+  !!CFG.SUPABASE_ANON_KEY && !CFG.SUPABASE_ANON_KEY.includes("YOUR-ANON");
+let sb = null;
+try {
+  if (CONFIGURED && window.supabase) sb = window.supabase.createClient(CFG.SUPABASE_URL, CFG.SUPABASE_ANON_KEY);
+} catch (e) { console.warn("Supabase init skipped:", e); }
+
+/* ---------- Mochi (pug, unchanged breed) ---------- */
+function Mochi({ size = 150 }) {
+  return (
+    <svg className="mochi" viewBox="0 0 220 200" width={size} height={size*136/150} aria-label="Mochi the pug">
+      {/* ears */}
+      <path d="M60 44 Q40 50 42 96 Q64 90 82 60 Z" fill="#2E221A"/>
+      <path d="M160 44 Q180 50 178 96 Q156 90 138 60 Z" fill="#2E221A"/>
+      {/* head */}
+      <ellipse cx="110" cy="112" rx="70" ry="64" fill="#D79A54"/>
+      <ellipse cx="110" cy="120" rx="70" ry="56" fill="#DCA35F" opacity=".5"/>
+      {/* mask */}
+      <ellipse cx="110" cy="140" rx="44" ry="34" fill="#3A2C22"/>
+      <ellipse cx="80" cy="106" rx="21" ry="23" fill="#3A2C22" opacity=".92"/>
+      <ellipse cx="140" cy="106" rx="21" ry="23" fill="#3A2C22" opacity=".92"/>
+      {/* blush */}
+      <ellipse cx="58" cy="128" rx="13" ry="9" fill="#D06B6B" opacity=".28"/>
+      <ellipse cx="162" cy="128" rx="13" ry="9" fill="#D06B6B" opacity=".28"/>
+      {/* brow wrinkles */}
+      <path d="M92 84 Q110 74 128 84" stroke="#B97E38" strokeWidth="4" fill="none" strokeLinecap="round"/>
+      <path d="M99 93 Q110 87 121 93" stroke="#B97E38" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+      {/* eyes */}
+      <ellipse cx="80" cy="107" rx="15" ry="17" fill="#211913"/>
+      <ellipse cx="140" cy="107" rx="15" ry="17" fill="#211913"/>
+      <circle cx="75" cy="101" r="4.5" fill="#fff"/>
+      <circle cx="135" cy="101" r="4.5" fill="#fff"/>
+      <circle cx="84" cy="112" r="2" fill="#fff" opacity=".6"/>
+      <circle cx="144" cy="112" r="2" fill="#fff" opacity=".6"/>
+      {/* nose + mouth */}
+      <ellipse cx="110" cy="134" rx="14" ry="10" fill="#1B140F"/>
+      <ellipse cx="105" cy="132" rx="2.4" ry="1.6" fill="#4a3a2e"/>
+      <ellipse cx="115" cy="132" rx="2.4" ry="1.6" fill="#4a3a2e"/>
+      <path d="M110 144 Q98 154 90 149" stroke="#1B140F" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+      <path d="M110 144 Q122 154 130 149" stroke="#1B140F" strokeWidth="3.5" fill="none" strokeLinecap="round"/>
+      {/* tongue */}
+      <path d="M104 152 Q110 166 116 152 Q116 150 110 150 Q104 150 104 152 Z" fill="#D06B6B"/>
+      <line x1="110" y1="153" x2="110" y2="161" stroke="#B4535B" strokeWidth="1.6"/>
+    </svg>
+  );
+}
+
+/* curly-tail divider (signature motif) */
+function Tail(){
+  return (
+    <svg className="tail" viewBox="0 0 60 26" fill="none" aria-hidden="true">
+      <path d="M2 20 Q14 26 20 16 Q25 7 34 12 Q42 16 40 8 Q38 2 46 4 Q54 6 58 14"
+        stroke="#B97E38" strokeWidth="3.2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
+const Check = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="8" fill="#EAF3E9"/>
+  <path d="M4.5 8.2l2.2 2.2 4-4.6" stroke="#6F9A6E" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg>
+);
+
+/* ---------- god mode: 5 rapid logo taps ---------- */
+function useGodTap(onGod){
+  const taps = useRef([]);
+  return () => {
+    const now = Date.now();
+    taps.current = [...taps.current, now].filter(t => now - t < 1600);
+    if (taps.current.length >= 5){ taps.current = []; onGod(); }
+  };
+}
+
+function Logo({ onGod }){
+  const tap = useGodTap(onGod);
+  return (
+    <div className="wordmark" onClick={tap} title="Mochi">
+      <span className="pin"><Mochi size={34} /></span>
+      <h1>{CFG.APP_NAME || "Mochi"}</h1>
+    </div>
+  );
+}
+
+/* ---------------- Auth (uncontrolled / DOM refs) ---------------- */
+function AuthGate({ onAuthed }){
+  const emailRef = useRef();
+  const passRef = useRef();
+  const [mode, setMode] = useState("login");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit(){
+    setErr("");
+    const email = (emailRef.current?.value || "").trim();
+    const password = passRef.current?.value || "";
+    if (!email || !password){ setErr("Enter your email and password to continue."); return; }
+    if (!sb){ onAuthed({ email, demo:true }); return; } // demo mode
+    setBusy(true);
+    try{
+      const { data, error } = mode === "login"
+        ? await sb.auth.signInWithPassword({ email, password })
+        : await sb.auth.signUp({ email, password });
+      if (error) throw error;
+      onAuthed(data.user || { email });
+    }catch(e){ setErr(e.message || "That didn't work. Try again."); }
+    finally{ setBusy(false); }
+  }
+
+  return (
+    <div className="auth">
+      <div className="hero" style={{marginBottom:18}}>
+        <Mochi />
+        <div className="hi">{mode === "login" ? "Welcome back" : "Say hi to Mochi"}</div>
+        <p className="sub">{mode === "login" ? "Log in to pick up where you left off." : "Make an account — takes a second."}</p>
+      </div>
+
+      {err && <div className="err">{err}</div>}
+
+      <div className="field">
+        <label>Email</label>
+        <input ref={emailRef} type="email" inputMode="email" autoComplete="email" placeholder="you@email.com" />
+      </div>
+      <div className="field">
+        <label>Password</label>
+        <input ref={passRef} type="password" autoComplete="current-password" placeholder="••••••••"
+          onKeyDown={(e)=> e.key === "Enter" && submit()} />
+      </div>
+
+      <button className="btn btn-fiat" onClick={submit} disabled={busy}>
+        {busy ? "One sec…" : (mode === "login" ? "Log in" : "Create account")}
+      </button>
+
+      <div className="switch">
+        {mode === "login" ? "New here?" : "Already have an account?"}
+        <button onClick={()=>{ setErr(""); setMode(mode === "login" ? "signup" : "login"); }}>
+          {mode === "login" ? "Create one" : "Log in"}
+        </button>
+      </div>
+
+      <p className="hint">Tip: tap the logo five times to skip in.</p>
+    </div>
+  );
+}
+
+/* ---------------- Payment section (fiat + crypto) ---------------- */
+function PayWall({ user, unlocked, setUnlocked }){
+  const [copied, setCopied] = useState(false);
+  const hasCryptoUrl = !!(CFG.CRYPTO_PAYMENT_URL && CFG.CRYPTO_PAYMENT_URL.length > 4);
+  const wallet = CFG.CRYPTO_WALLET || "";
+
+  function payFiat(){ if (CFG.FIAT_PAYMENT_URL) window.open(CFG.FIAT_PAYMENT_URL, "_blank", "noopener"); }
+  function payCrypto(){ if (hasCryptoUrl) window.open(CFG.CRYPTO_PAYMENT_URL, "_blank", "noopener"); }
+
+  function copyWallet(){
+    if (!wallet) return;
+    navigator.clipboard?.writeText(wallet).then(()=>{ setCopied(true); setTimeout(()=>setCopied(false), 1600); });
+  }
+
+  async function markPaid(method){
+    setUnlocked(true);
+    if (sb && user && !user.demo && !user.god){
+      try{ await sb.from("unlocks").insert({ user_id: user.id, method }); }catch(e){ /* table optional */ }
+    }
+  }
+
+  if (unlocked){
+    return (
+      <div className="card unlocked">
+        <div className="badge"><Check/> Mochi Premium is on</div>
+        <p style={{marginTop:12}}>Everything's unlocked. Enjoy.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="card">
+      <p className="eyebrow">Mochi Premium</p>
+      <div className="pw-price">
+        <span className="big">{CFG.PRICE_FIAT || "₹499"}</span>
+        <span className="or">or {CFG.PRICE_CRYPTO || "1 TON"}</span>
+      </div>
+
+      <ul className="perks">
+        <li><Check/> Unlock everything, one-time</li>
+        <li><Check/> No ads, no limits</li>
+        <li><Check/> Pay your way — card, UPI or crypto</li>
+      </ul>
+
+      <div className="pay">
+        <button className="btn btn-fiat" onClick={payFiat}>
+          Pay with {CFG.FIAT_LABEL || "Card / UPI"} · {CFG.PRICE_FIAT || "₹499"}
+        </button>
+
+        <div className="paylabel">or</div>
+
+        <button className="btn btn-crypto" onClick={hasCryptoUrl ? payCrypto : copyWallet}>
+          <span>Pay with {CFG.CRYPTO_LABEL || "Crypto"} · {CFG.PRICE_CRYPTO || "1 TON"}</span>
+          <span className="net">{CFG.CRYPTO_NETWORK || "TON"}</span>
+        </button>
+      </div>
+
+      {!hasCryptoUrl && wallet &&
+        <div className="wallet">
+          <div className="k"><span>Send to this {CFG.CRYPTO_NETWORK || "TON"} wallet</span></div>
+          <div className="addr">{wallet}</div>
+          <button className="copy" onClick={copyWallet}>{copied ? "Copied ✓" : "Copy address"}</button>
+        </div>
+      }
+
+      <button className="confirm" onClick={()=>markPaid(hasCryptoUrl || !wallet ? "fiat" : "crypto")}>
+        I've paid — unlock Mochi Premium
+      </button>
+    </div>
+  );
+}
+
+/* ---------------- Home ---------------- */
+function Home({ user, onSignOut }){
+  const [unlocked, setUnlocked] = useState(false);
+  const name = (user.email || "friend").split("@")[0];
+
+  return (
+    <>
+      <div className="top">
+        <Logo onGod={()=>{}} />
+        <button className="ghost-btn" onClick={onSignOut}>
+          {(user.demo || user.god) ? "Exit" : "Sign out"}
+        </button>
+      </div>
+
+      {!CONFIGURED &&
+        <div className="demo-banner">
+          <b>Demo mode.</b> Login and payments are simulated. Add your Supabase keys and payment links in <b>config.js</b> to go live.
+        </div>
+      }
+
+      <div className="hero">
+        <Mochi />
+        <div className="hi">Hey {name} 👋</div>
+        <p className="sub">Mochi's happy you're here.</p>
+        <div className="stats">
+          <div className="stat"><div className="n">—</div><div className="l">placeholder stat</div></div>
+          <div className="stat"><div className="n">—</div><div className="l">placeholder stat</div></div>
+        </div>
+      </div>
+
+      <Tail/>
+
+      {/* ===================================================== */}
+      {/*  CORE FEATURE SLOT                                     */}
+      {/*  Tell me what Mochi actually does and I drop it here.  */}
+      {/* ===================================================== */}
+      <div className="card">
+        <p className="eyebrow">Home</p>
+        <h3>Your Mochi space</h3>
+        <p>This is the main screen. The scaffolding around it — accounts, premium, both payment rails — is done and wired.</p>
+        <div className="slot">
+          <p className="eyebrow">Build slot</p>
+          <p>Mochi's core feature goes right here.</p>
+        </div>
+      </div>
+
+      <PayWall user={user} unlocked={unlocked} setUnlocked={setUnlocked} />
+
+      <div className="foot">Mochi 🐾 — built by LexConv</div>
+    </>
+  );
+}
+
+/* ---------------- Root ---------------- */
+function App(){
+  const [user, setUser] = useState(null);
+
+  useEffect(()=>{
+    if (!sb) return;
+    sb.auth.getUser().then(({ data })=>{ if (data?.user) setUser(data.user); });
+    const { data: sub } = sb.auth.onAuthStateChange((_e, session)=>{
+      setUser(session?.user || null);
+    });
+    return ()=> sub?.subscription?.unsubscribe?.();
+  }, []);
+
+  async function signOut(){
+    if (sb && !user?.demo && !user?.god){ try{ await sb.auth.signOut(); }catch(e){} }
+    setUser(null);
+  }
+
+  if (!user){
+    return (
+      <div className="wrap">
+        {/* god-mode logo lives inside AuthGate's flow via header-less screen; expose a top logo too */}
+        <div className="top"><Logo onGod={()=> setUser({ email:"godmode@mochi", god:true })} /><span/></div>
+        <AuthGate onAuthed={setUser} />
+      </div>
+    );
+  }
+  return <div className="wrap"><Home user={user} onSignOut={signOut} /></div>;
+}
+
+try{
+  ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+}catch(e){
+  document.getElementById("root").innerHTML =
+    '<div style="max-width:440px;margin:40px auto;padding:20px;font-family:system-ui;color:#4B3E33">'+
+    '<b>Mochi hit a snag loading.</b><br/>Check that config.js is present next to index.html, then refresh.</div>';
+  console.error(e);
+}
+</script>
+</body>
+</html>
