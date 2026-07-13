@@ -19,8 +19,8 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
-const RAZORPAY_KEY_ID = Deno.env.get("RAZORPAY_KEY_ID") ?? "";
-const RAZORPAY_KEY_SECRET = Deno.env.get("RAZORPAY_KEY_SECRET") ?? "";
+const RAZORPAY_KEY_ID = Deno.env.get rzp_live_T0CGNTbT056GLr "";
+const RAZORPAY_KEY_SECRET = Deno.env.get wwa0RqFvE6UQvItGoRyGTXVb "";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
